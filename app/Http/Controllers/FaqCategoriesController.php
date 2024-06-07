@@ -13,9 +13,11 @@ class FaqCategoriesController extends Controller
     public function getData(Request $request): JsonResponse
     {
         try {
+
             $per_page = $request->input('per_page', 9);
+            $tipe = $request->input('tipe', null);
             // $getData = FaqCategories::orderBy('id', 'ASC')->paginate($per_page);
-            $getData = (new FaqCategories)->getData($per_page);
+            $getData = (new FaqCategories)->getData($per_page, $tipe);
 
             return response()->json([
                 'data' => $getData,
@@ -113,8 +115,21 @@ class FaqCategoriesController extends Controller
     public function getAnswer(Request $request, $id): JsonResponse
     {
         try {
+            $getData = Answer ::select('answers.id','answers.code_subkategori', 'answers.answer_text', 'fsc.nama_subkategori', 'fc.nama_kategori', 'fc.prioritas', 'pf2.nomor_hp', 'pf2.nickname')
+            
+            ->leftJoin('pics', 'pics.code_subkategori', '=', 'answers.code_subkategori')
+            ->leftJoin('users', 'users.id', '=', 'pics.users_id')
+            ->leftJoin('profiles as pf', 'pf.users_id', '=', 'answers.created_by')
+            ->leftJoin('faq_subcategories as fsc', 'fsc.code_subkategori', '=', 'answers.code_subkategori')
+            ->leftJoin('faq_categories as fc', 'fc.code_kategori', '=', 'fsc.code_kategori')
+            ->leftJoin('profiles as pf2','pf2.users_id','=','pics.users_id')
+            ->where('fsc.code_subkategori', $id)
+            // ->orderBy('answers.id')
+            ->first();
 
-            $getData = Answer::where('code_subkategori', $id)->first();
+            // return $getData;
+
+            // $getData = Answer::where('code_subkategori', $id)->first();
 
             return response()->json([
                 'data' => $getData,

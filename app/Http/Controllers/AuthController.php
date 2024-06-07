@@ -28,4 +28,19 @@ class AuthController extends Controller
             ], 200);
         }
     }
+    public function LoginWeb(Request $request)
+    {
+        $check = Users::select('users.id', 'email', 'users.nama', 'p.nickname', 'p.nomor_hp')
+            ->leftJoin('profiles as p', 'p.users_id', '=', 'users.id')
+            ->where('email', $request->email)
+            ->where('password', $request->password)
+            ->first();
+        if ($check) {
+            return response()->json([
+                'data' => $check,
+                'code' => 200,
+                'status' => true,
+            ], 200);
+        }
+    }
 }

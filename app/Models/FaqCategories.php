@@ -33,7 +33,7 @@ class FaqCategories extends Model
         return $date->format('Y-m-d H:i:s');
     }
 
-    public function getData($per_page){
+    public function getData($per_page, $tipe = null){
         try {
             $data = DB::table('faq_categories as fc')
                 ->join('faq_subcategories as fsc', 'fsc.code_kategori', '=', 'fc.code_kategori')
@@ -42,8 +42,10 @@ class FaqCategories extends Model
                 ->join('pics as p', 'p.code_subkategori', '=', 'fsc.code_subkategori')
                 ->join('profiles as pr', 'p.users_id', 'pr.id')
                 ->select('fsc.id', 'mr.nama_role', 'fc.nama_kategori', 'fc.icon', 'fc.prioritas', 'fsc.nama_subkategori',  'a.answer_text' ,'p.users_id' ,'a.created_at', 'a.updated_at', 'pr.nama', 'pr.nickname')
-                ->whereNull('fsc.deleted_at')
-                ->orderBy('fc.id', 'ASC')
+                ->whereNull('fsc.deleted_at');
+                $tipe ? $data = $data -> where('mr.code_role', $tipe) : $data;
+                // ->orderBy('fc.id', 'ASC')
+                $data=$data->latest('fc.id')
                 ->paginate($per_page);
                 
                 return $data;
